@@ -1,0 +1,123 @@
+from locorobo import LocoRobo
+from locorobo import MotorDirection
+from locorobo import Data
+from locorobo import WaitType
+from locorobo import Song
+from locorobo import Note
+
+def get_robot(robots, name):
+    robot = None
+
+    # Search through robots found during the scan for
+    # the one we want
+    for r in robots.values():
+        if r.name == name:
+            robot = r
+
+            # We found the robot, so stop the for loop
+            break
+
+    # If we did not find the robot during the scan, stop the program
+    if not robot:
+        raise Exception('Could not find robot with specified name')
+
+    return robot
+
+
+def main():
+    
+    # Tell LocoRobo what serial port to use
+    LocoRobo.setup("/dev/tty.usbmodem1")
+    
+    # Scan for robots
+    robots = LocoRobo.scan(2000)
+
+    # Use get_robots to find robot with name lr 00:07 in the scan result
+    robot = get_robot(robots, "lr 44:d7")
+
+    robot.connect()
+    robot.activate_motors()
+    robot.enable_sensor(Data.ULTRASONIC, True)
+
+    #Light Code 
+    
+    wait = 0.2
+    robot.set_light(0,100, 50, 0)
+    LocoRobo.wait(wait)
+    robot.set_light(1, 0, 0, 255)
+    LocoRobo.wait(wait)
+    robot.set_light(2, 0, 255, 0)
+    LocoRobo.wait(wait)
+    robot.set_light(3, 255, 0, 50)
+    LocoRobo.wait(wait)
+    robot.set_light(4, 255, 0, 0) 
+    LocoRobo.wait(wait)
+    robot.set_light(5, 0, 50, 200)
+    LocoRobo.wait(wait)
+    robot.set_lights(6, 50, 0, 0)
+    LocoRobo.wait(wait)
+    robot.sync_lights()
+
+ 
+    LocoRobo.wait(2)
+    
+    
+    #Motion Code SQUARE
+    
+    #robot.setup_wait(WaitType.DISTANCE, 10 * 1000)
+    #robot.move(MotorDirection.FORWARD, MotorDirection.FORWARD, 1, 1, True)
+    
+    #robot.setup_wait(WaitType.ROTATION, 90 * 1000)
+    #robot.move(MotorDirection.FORWARD, MotorDirection.BACKWARD, 0.3, 0.3, True)
+    
+    robot.setup_wait(WaitType.DISTANCE, 10 * 1000)
+    robot.move(MotorDirection.FORWARD, MotorDirection.FORWARD, 1, 1, True)
+    
+    robot.setup_wait(WaitType.ROTATION, 90 * 1000)
+    robot.move(MotorDirection.FORWARD, MotorDirection.BACKWARD, 0.3, 0.3, True)
+    
+    robot.setup_wait(WaitType.DISTANCE, 10 * 1000)
+    robot.move(MotorDirection.FORWARD, MotorDirection.FORWARD, 1, 1, True)
+    
+    robot.setup_wait(WaitType.ROTATION, 90 * 1000)
+    robot.move(MotorDirection.FORWARD, MotorDirection.BACKWARD, 0.3, 0.3, True)
+    
+    robot.setup_wait(WaitType.DISTANCE, 10 * 1000)
+    robot.move(MotorDirection.FORWARD, MotorDirection.FORWARD, 1, 1, True)
+    
+    robot.setup_wait(WaitType.ROTATION, 90 * 1000)
+    robot.move(MotorDirection.FORWARD, MotorDirection.BACKWARD, 0.3, 0.3, True)
+
+    #Motion with sensors 
+    while True:
+        LocoRobo.wait(0.2)
+        distance = robot.get_sensor_value(Data.ULTRASONIC)
+        robot.setup_wait(WaitType.DISTANCE, 500 * 1000)
+        robot.move(MotorDirection.FORWARD, MotorDirection.FORWARD, 1, 1, True)
+        print(distance)
+        
+        
+    robot.deactivate_motors()
+    robot.disconnect()
+   
+   
+   
+   
+# If we are on the main thread, run the program
+if __name__ == "__main__":
+
+    try:
+        main()
+    except:
+        LocoRobo.stop()
+        raise
+
+    LocoRobo.stop()
+
+    # For compatibility with webapp's python, we can't use finally.
+    # If you are using local python, you can do the following
+    #
+    # try:
+    #     main()
+    # finally:
+    #     LocoRobo.stop()
